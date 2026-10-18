@@ -22,6 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.TextButton
+
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,16 +58,23 @@ fun TaskScreen(viewModel: TaskViewModel = viewModel()) {
             }
         }
         Column(Modifier.padding(top = 16.dp)) {
-            tasks.forEach { task ->
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Checkbox(
-                        checked = task.done,
-                        onCheckedChange = { viewModel.toggleDone(task.id) }
-                    )
-                    Text(task.title)
+            if (tasks.isEmpty()) {
+                Text("No tasks yet")
+            } else {
+                tasks.forEach { task ->
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Checkbox(
+                            checked = task.done,
+                            onCheckedChange = { viewModel.toggleDone(task.id) }
+                        )
+                        Text(task.title, modifier = Modifier.weight(1f))
+                            TextButton(onClick = { viewModel.deleteTask(task.id) }) {
+                                Text("Delete")
+                        }
+                    }
                 }
             }
         }

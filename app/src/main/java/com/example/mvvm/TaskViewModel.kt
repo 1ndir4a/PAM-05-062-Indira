@@ -8,13 +8,9 @@ import kotlinx.coroutines.flow.update
 class TaskViewModel(
     private val repository: TaskRepository = TaskRepository()
 ) : ViewModel() {
-    // Private mutable state: only the ViewModel can change it
     private val _tasks = MutableStateFlow(repository.loadInitialTasks())
-
-    // Public read-only state: the UI can observe it but not modify it
     val tasks: StateFlow<List<Task>> = _tasks.asStateFlow()
 
-    // Events from the UI come in as functions
     fun toggleDone(taskId: Int) {
         _tasks.update { list ->
             list.map { task ->
@@ -29,5 +25,8 @@ class TaskViewModel(
             val nextId = (list.maxOfOrNull { it.id } ?: 0) + 1
             list + Task(id = nextId, title = title.trim())
         }
+    }
+    fun deleteTask(taskId: Int) {
+        _tasks.update { list -> list.filterNot { it.id == taskId } }
     }
 }

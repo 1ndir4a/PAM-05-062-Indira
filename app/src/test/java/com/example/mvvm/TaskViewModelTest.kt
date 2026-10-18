@@ -5,13 +5,13 @@ import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 class TaskViewModelTest {
-    // A fake repository gives us control over the starting data
     private class FakeRepository : TaskRepository() {
         override fun loadInitialTasks(): List<Task> = listOf(
             Task(1, "First"),
             Task(2, "Second", done = true)
         )
     }
+
     @Test
     fun toggleDone_flipsTheTaskState() {
         val viewModel = TaskViewModel(FakeRepository())
@@ -40,4 +40,44 @@ class TaskViewModelTest {
         viewModel.addTask(" ")
         assertEquals(2, viewModel.tasks.value.size)
     }
+    @Test
+    fun deleteTask_removesOnlyThatTask() {
+        val viewModel = TaskViewModel(FakeRepository())
+
+        viewModel.deleteTask(1)
+
+        val tasks = viewModel.tasks.value
+        assertEquals(1, tasks.size)
+        assertEquals(2, tasks.first().id)
+    }
+
+    @Test
+    fun deleteTask_withUnknownId_changesNothing() {
+        val viewModel = TaskViewModel(FakeRepository())
+
+        viewModel.deleteTask(999)
+
+        assertEquals(2, viewModel.tasks.value.size)
+    }
+
+    @Test
+    fun deletingAllTasks_leavesEmptyList() {
+        val viewModel = TaskViewModel(FakeRepository())
+
+        viewModel.deleteTask(1)
+        viewModel.deleteTask(2)
+
+        assertTrue(viewModel.tasks.value.isEmpty())
+    }
+
+    @Test
+    fun emptyRepository_startsWithEmptyList() {
+        val viewModel = TaskViewModel(EmptyRepository())
+
+        assertTrue(viewModel.tasks.value.isEmpty())
+    }
+    private class EmptyRepository : TaskRepository() {
+        override fun loadInitialTasks(): List<Task> = emptyList()
+    }
+
 }
